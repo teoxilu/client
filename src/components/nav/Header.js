@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu } from "antd";
+import { Menu, Badge } from "antd";
 import {
   AppstoreOutlined,
   SettingOutlined,
@@ -7,6 +7,7 @@ import {
   UserAddOutlined,
   LogoutOutlined,
   ShoppingOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import firebase from "firebase/compat/app";
@@ -20,12 +21,11 @@ const Header = () => {
   const [current, setCurrent] = useState("home");
 
   let dispatch = useDispatch();
-  let { user } = useSelector((state) => ({ ...state }));
+  let { user, cart } = useSelector((state) => ({ ...state }));
 
   let history = useHistory();
 
   const handleClick = (e) => {
-    // console.log(e.key);
     setCurrent(e.key);
   };
 
@@ -40,12 +40,22 @@ const Header = () => {
 
   return (
     <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
-      <Item key="home" icon={<AppstoreOutlined />}>
-        <Link to="/">Home</Link>
-      </Item>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Item key="home" icon={<AppstoreOutlined />}>
+          <Link to="/">Home</Link>
+        </Item>
 
-      <Item key="shop" icon={<ShoppingOutlined />}>
-        <Link to="/shop">Shop</Link>
+        <Item key="shop" icon={<ShoppingOutlined />} style={{ marginLeft: "10px" }}>
+          <Link to="/shop">Shop</Link>
+        </Item>
+      </div>
+
+      <Item key="cart" icon={<ShoppingCartOutlined />}>
+        <Link to="/cart">
+          <Badge count={cart.length} offset={[9, 0]}>
+            Cart
+          </Badge>
+        </Link>
       </Item>
 
       {!user && (
@@ -66,7 +76,7 @@ const Header = () => {
           title={user.email && user.email.split("@")[0]}
           className="float-right"
         >
-          {user && user.role === "subscriber" && (
+          {user && user.role === "customer" && (
             <Item>
               <Link to="/user/history">Dashboard</Link>
             </Item>

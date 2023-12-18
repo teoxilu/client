@@ -39,6 +39,22 @@ const Shop = () => {
     "Converse",
   ]);
   const [brand, setBrand] = useState("");
+  const [sizes, setSizes] = useState([
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "42.5",
+    "43",
+    "44",
+    "40.5",
+    "41.5",
+    "43.5",
+    "36",
+  ]);
+  const [size, setSize] = useState("");
 
   let dispatch = useDispatch();
   let { search } = useSelector((state) => ({ ...state }));
@@ -70,6 +86,9 @@ const Shop = () => {
   useEffect(() => {
     const delayed = setTimeout(() => {
       fetchProducts({ query: text });
+      if (!text) {
+        loadAllProducts();
+      }
     }, 300);
     return () => clearTimeout(delayed);
   }, [text]);
@@ -92,6 +111,7 @@ const Shop = () => {
     setStar("");
     setSub("");
     setBrand("");
+    setSize("");
     setTimeout(() => {
       setOk(!ok);
     }, 300);
@@ -126,6 +146,7 @@ const Shop = () => {
     setStar("");
     setSub("");
     setBrand("");
+    setSize("");
     // console.log(e.target.value);
     let inTheState = [...categoryIds];
     let justChecked = e.target.value;
@@ -156,6 +177,7 @@ const Shop = () => {
     setStar(num);
     setSub("");
     setBrand("");
+    setSize("");
     fetchProducts({ stars: num });
   };
 
@@ -193,6 +215,7 @@ const Shop = () => {
     setCategoryIds([]);
     setStar("");
     setBrand("");
+    setSize("");
     fetchProducts({ sub });
   };
 
@@ -200,6 +223,7 @@ const Shop = () => {
   const showBrands = () =>
     brands.map((b) => (
       <Radio
+        key={b}
         value={b}
         name={b}
         checked={b === brand}
@@ -219,8 +243,38 @@ const Shop = () => {
     setPrice([0, 0]);
     setCategoryIds([]);
     setStar("");
+    setSize("");
     setBrand(e.target.value);
     fetchProducts({ brand: e.target.value });
+  };
+
+  // 8. show products based on size
+  const showSizes = () =>
+    sizes.map((s) => (
+      <Radio
+        key={s}
+        value={s}
+        name={s}
+        checked={s === size}
+        onChange={handleSize}
+        className="pb-1 pl-4 pr-4"
+      >
+        {s}
+      </Radio>
+    ));
+
+  const handleSize = (e) => {
+    setSub("");
+    dispatch({
+      type: "SEARCH_QUERY",
+      payload: { text: "" },
+    });
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar("");
+    setBrand("");
+    setSize(e.target.value);
+    fetchProducts({ size: e.target.value });
   };
 
   return (
@@ -230,10 +284,7 @@ const Shop = () => {
           <h4>Search/Filter</h4>
           <hr />
 
-          <Menu
-            defaultOpenKeys={["1", "2", "3", "4", "5", "6", "7"]}
-            mode="inline"
-          >
+          <Menu defaultOpenKeys={["1", "2", "3", "4", "5", "6"]} mode="inline">
             {/* price */}
             <SubMenu
               key="1"
@@ -246,11 +297,11 @@ const Shop = () => {
               <div>
                 <Slider
                   className="ml-4 mr-4"
-                  tipFormatter={(v) => `$${v}`}
+                  tipFormatter={(v) => `${v} VND`}
                   range
                   value={price}
                   onChange={handleSlider}
-                  max="4999"
+                  max="5000000"
                 />
               </div>
             </SubMenu>
@@ -304,6 +355,20 @@ const Shop = () => {
             >
               <div style={{ maringTop: "-10px" }} className="pr-5">
                 {showBrands()}
+              </div>
+            </SubMenu>
+
+            {/* size */}
+            <SubMenu
+              key="6"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Sizes
+                </span>
+              }
+            >
+              <div style={{ maringTop: "-10px" }} className="pr-5">
+                {showSizes()}
               </div>
             </SubMenu>
           </Menu>
